@@ -29,3 +29,13 @@ body {
 .road-line:nth-child(3) { top: 50vh; }
 .road-line:nth-child(4) { top: 70vh; }
 .road-line:nth-child(5) { top: 90vh; }
+
+/* Style for car image */
+#playerCar {
+  position: absolute;
+  bottom: 20px;
+  left: 54px;    /* shift a bit left to center on road */
+  width: 300px;    /* bigger size */
+  height: auto;
+  z-index: 10;
+}
