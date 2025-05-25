@@ -1,0 +1,31 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #222;
+}
+
+.game-area {
+  width: 400px;
+  height: 100vh;       /* full viewport height */
+  margin: 0 auto;
+  background: #2e2e2e;
+  position: relative;
+  border-left: 5px solid white;
+  border-right: 5px solid white;
+  overflow: hidden;
+}
+
+.road-line {
+  width: 10px;
+  height: 60px;
+  background: white;
+  position: absolute;
+  left: 195px;
+}
+
+/* Place lines evenly down the entire height */
+.road-line:nth-child(1) { top: 10vh; }
+.road-line:nth-child(2) { top: 30vh; }
+.road-line:nth-child(3) { top: 50vh; }
+.road-line:nth-child(4) { top: 70vh; }
+.road-line:nth-child(5) { top: 90vh; }
