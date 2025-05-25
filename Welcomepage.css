@@ -1,0 +1,24 @@
+body {
+  background: white;
+  color: black;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding-top: 150px;
+}
+
+button {
+  padding: 15px 30px;
+  font-size: 18px;
+  background: limegreen;
+  color: black;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 30px;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: green;
+  color: white;
+}
