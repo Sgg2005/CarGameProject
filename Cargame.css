@@ -28,9 +28,8 @@ body {
 #playerCar {
   position: absolute;
   bottom: 20px;
-  left: 120px;   /* Adjust left to keep it centered after resizing */
-  width: 160px;  /* Increase this value for a bigger car */
+  left: 100px;   /* (400 - 200) / 2 for initial center */
+  width: 200px;  /* even bigger car */
   height: auto;
   z-index: 10;
-  transition: left 0.08s;
 }
