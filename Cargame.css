@@ -1,35 +1,44 @@
 body {
   margin: 0;
-  padding: 0;
-  background: #222;
-}
-
-.game-area {
-  width: 400px;
-  height: 100vh;
-  margin: 0 auto;
-  background: #2e2e2e;
-  position: relative;
-  border-left: 5px solid white;
-  border-right: 5px solid white;
+  background: #fff;
   overflow: hidden;
 }
 
-.road-line {
-  width: 10px;
-  height: 60px;
-  background: white;
-  position: absolute;
-  left: 195px;
-  top: 0;
-  opacity: 0.8;
+.game-area {
+  position: relative;
+  width: 400px;
+  height: 700px;
+  margin: 30px auto;
+  background: #343434;
+  border-left: 6px solid #fff;
+  border-right: 6px solid #fff;
+  overflow: hidden;
 }
 
 #playerCar {
   position: absolute;
   bottom: 20px;
-  left: 100px;   /* (400 - 200) / 2 for initial center */
-  width: 200px;  /* even bigger car */
+  left: 100px; /* (400 - 200) / 2, adjust as needed */
+  width: 100px;
   height: auto;
   z-index: 10;
+}
+
+.enemyCar {
+  position: absolute;
+  width: 100px;
+  height: auto;
+  z-index: 5;
+  top: 0px;
+}
+
+.road-line {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 80px;
+  background: #fff;
+  opacity: 0.85;
+  border-radius: 4px;
 }
