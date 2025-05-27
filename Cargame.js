@@ -39,7 +39,7 @@ function resetLineOffsets() {
 
 function animateRoadLines() {
   for (let i = 0; i < roadLines.length; i++) {
-    lineOffsets[i] += 3; // Road speed (adjust for faster/slower)
+    lineOffsets[i] += 2; // Road speed (adjust for faster/slower)
     if (lineOffsets[i] > roadHeight) {
       lineOffsets[i] = lineOffsets[i] - roadHeight - 80; // 80 = road line height
     }
@@ -65,64 +65,123 @@ const enemyCarImages = [
   "CarImage4.png"
 ];
 
+// IMPORTANT: Changed car height-based spacing to account for actual image size
+const CAR_HEIGHT = 350;  // Your car height (you said 350)
+const SAFE_GAP = CAR_HEIGHT + 100;  // Increased for extra safety
+
+// Track cars by lane for better collision detection
+const laneTracker = {
+  [lanePositions[0]]: [],
+  [lanePositions[1]]: []
+};
+
+// Initialize enemy cars with proper spacing
 enemyCars.forEach((car, idx) => {
   const laneIndex = Math.floor(Math.random() * lanePositions.length);
-  car.style.left = lanePositions[laneIndex] + 'px';
-  // Stagger start: each car higher up, with some randomness
-  const baseSpacing = 180; // (must be > car height)
-  car.style.top = (-120 - idx * baseSpacing - Math.floor(Math.random() * 100)) + 'px';
+  const lane = lanePositions[laneIndex];
+  car.style.left = lane + 'px';
+  
+  // Start positioning - ensure each car is spaced properly
+  let newTop;
+  if (laneTracker[lane].length === 0) {
+    // First car in this lane
+    newTop = -CAR_HEIGHT - Math.floor(Math.random() * 200);
+  } else {
+    // Find last car in this lane and position below it with gap
+    const lastCarTop = Math.min(...laneTracker[lane].map(c => parseInt(c.style.top)));
+    newTop = lastCarTop - SAFE_GAP - Math.floor(Math.random() * 100);
+  }
+  
+  car.style.top = newTop + 'px';
+  laneTracker[lane].push(car);
+  
   if (idx > 0) {
     car.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
   }
 });
 
 function moveEnemies() {
-  const minGap = 350;      // For same-lane spacing
-  const minAlignGap = 150;  // For all-lane horizontal offset
-
-  enemyCars.forEach((car, idx, arr) => {
+  // Reset lane tracker each frame for accurate current positions
+  laneTracker[lanePositions[0]] = [];
+  laneTracker[lanePositions[1]] = [];
+  
+  // Sort cars by vertical position for better collision detection
+  const sortedCars = Array.from(enemyCars).sort((a, b) => {
+    return parseInt(a.style.top) - parseInt(b.style.top);
+  });
+  
+  // Populate lane tracker with current car positions
+  sortedCars.forEach(car => {
+    const lane = parseInt(car.style.left);
+    laneTracker[lane].push(car);
+  });
+  
+  // Process each car
+  sortedCars.forEach(car => {
     let currentTop = parseInt(car.style.top) || 0;
-    currentTop += 3; // enemy speed
-    car.style.top = currentTop + 'px';
-
+    let currentLane = parseInt(car.style.left) || 0;
+    
+    // Find cars in the same lane
+    const carsInSameLane = laneTracker[currentLane].filter(c => c !== car);
+    
+    // Find the nearest car below this one in the same lane
+    const carsBelowInLane = carsInSameLane.filter(c => parseInt(c.style.top) > currentTop);
+    let canMove = true;
+    
+    if (carsBelowInLane.length > 0) {
+      // Find the closest car below
+      const closestCarBelow = carsBelowInLane.reduce((closest, c) => {
+        return parseInt(c.style.top) < parseInt(closest.style.top) ? c : closest;
+      }, carsBelowInLane[0]);
+      
+      // Check if moving would cause overlap
+      const distanceToCarBelow = parseInt(closestCarBelow.style.top) - currentTop;
+      if (distanceToCarBelow < SAFE_GAP) {
+        canMove = false;
+      }
+    }
+    
+    // Move car if safe
+    if (canMove) {
+      currentTop += 2; // Speed of enemy cars
+      car.style.top = currentTop + 'px';
+    }
+    
+    // Respawn logic
     if (currentTop > roadHeight) {
-      let tries = 0;
-      let laneIndex, newTop, tooClose;
-      do {
-        laneIndex = Math.floor(Math.random() * lanePositions.length);
-        newTop = -120 - Math.floor(Math.random() * 200);
-        tooClose = false;
-        for (let j = 0; j < arr.length; j++) {
-          if (j === idx) continue;
-          const otherCar = arr[j];
-          const otherLane = parseInt(otherCar.style.left) || 0;
-          const otherTop = parseInt(otherCar.style.top) || 0;
-          // Prevent overlap in same lane
-          if (
-            otherLane === lanePositions[laneIndex] &&
-            Math.abs(otherTop - newTop) < minGap
-          ) {
-            tooClose = true;
-            break;
-          }
-          // Prevent alignment in any lane
-          if (
-            Math.abs(otherTop - newTop) < minAlignGap
-          ) {
-            tooClose = true;
-            break;
-          }
+      const laneIndex = Math.floor(Math.random() * lanePositions.length);
+      const newLane = lanePositions[laneIndex];
+      
+      // Find safe position in the chosen lane
+      let newTop = -CAR_HEIGHT;
+      
+      // Find the highest car in the target lane
+      if (laneTracker[newLane].length > 0) {
+        const highestCarTop = Math.min(...laneTracker[newLane]
+          .map(c => parseInt(c.style.top)));
+        
+        // If highest car is too close to the top, position this car higher
+        if (highestCarTop < SAFE_GAP) {
+          newTop = highestCarTop - SAFE_GAP - Math.floor(Math.random() * 100);
         }
-        tries++;
-      } while (tooClose && tries < 20);
-
+      }
+      
+      // Update position and image
       car.style.top = newTop + 'px';
-      car.style.left = lanePositions[laneIndex] + 'px';
+      car.style.left = newLane + 'px';
       car.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
+      
+      // Update lane tracker
+      const oldLaneIndex = laneTracker[currentLane].indexOf(car);
+      if (oldLaneIndex !== -1) {
+        laneTracker[currentLane].splice(oldLaneIndex, 1);
+      }
+      laneTracker[newLane].push(car);
     }
   });
 
   requestAnimationFrame(moveEnemies);
 }
+
 moveEnemies();
 
