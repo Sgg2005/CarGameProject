@@ -4,13 +4,14 @@ const roadWidth = 400;
 const carWidth = 100;
 let carLeft = (roadWidth - carWidth) / 2;
 const carStep = 25;
-const overlap = 10; // How much the player can go past the edge
+const overlap = 10; //how much the player can go past the edge
 
 const minLeft = -overlap;
 const maxLeft = roadWidth - carWidth + overlap;
 
 playerCar.style.left = carLeft + "px";
 
+//ensures the car stays within the road boundaries
 document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft') {
     carLeft = Math.max(minLeft, carLeft - carStep);
@@ -39,9 +40,9 @@ function resetLineOffsets() {
 
 function animateRoadLines() {
   for (let i = 0; i < roadLines.length; i++) {
-    lineOffsets[i] += 2; // Road speed (adjust for faster/slower)
+    lineOffsets[i] += 2; //road speed
     if (lineOffsets[i] > roadHeight) {
-      lineOffsets[i] = lineOffsets[i] - roadHeight - 80; // 80 = road line height
+      lineOffsets[i] = lineOffsets[i] - roadHeight - 80; //80 = road line height
     }
     roadLines[i].style.top = lineOffsets[i] + 'px';
   }
@@ -52,7 +53,7 @@ resetLineOffsets();
 animateRoadLines();
 
 // --- Enemy cars movement ---
-// Only two lanes: left and right (NO center)
+//only two lanes: left and right (NO center)
 const lanePositions = [
   0,                    // Left lane
   roadWidth - carWidth  // Right lane
@@ -65,29 +66,29 @@ const enemyCarImages = [
   "CarImage4.png"
 ];
 
-// IMPORTANT: Changed car height-based spacing to account for actual image size
+//changed the car height-based spacing to account for actual image size
 const CAR_HEIGHT = 350;  // Your car height (you said 350)
 const SAFE_GAP = CAR_HEIGHT + 100;  // Increased for extra safety
 
-// Track cars by lane for better collision detection
+//tracks cars by lane for better collision detection
 const laneTracker = {
   [lanePositions[0]]: [],
   [lanePositions[1]]: []
 };
 
-// Initialize enemy cars with proper spacing
+//initialses enemy cars with proper spacing
 enemyCars.forEach((car, idx) => {
   const laneIndex = Math.floor(Math.random() * lanePositions.length);
   const lane = lanePositions[laneIndex];
   car.style.left = lane + 'px';
   
-  // Start positioning - ensure each car is spaced properly
+  //start positioning - ensure each car is spaced properly
   let newTop;
   if (laneTracker[lane].length === 0) {
-    // First car in this lane
+    //first car in this lane
     newTop = -CAR_HEIGHT - Math.floor(Math.random() * 200);
   } else {
-    // Find last car in this lane and position below it with gap
+    //finds the last car in this lane and position below it with gap
     const lastCarTop = Math.min(...laneTracker[lane].map(c => parseInt(c.style.top)));
     newTop = lastCarTop - SAFE_GAP - Math.floor(Math.random() * 100);
   }
@@ -101,77 +102,77 @@ enemyCars.forEach((car, idx) => {
 });
 
 function moveEnemies() {
-  // Reset lane tracker each frame for accurate current positions
+  //resets the lane tracker each frame for accurate current positions
   laneTracker[lanePositions[0]] = [];
   laneTracker[lanePositions[1]] = [];
   
-  // Sort cars by vertical position for better collision detection
+  //sorts the cars by vertical position for better collision detection
   const sortedCars = Array.from(enemyCars).sort((a, b) => {
     return parseInt(a.style.top) - parseInt(b.style.top);
   });
   
-  // Populate lane tracker with current car positions
+  //populates lane tracker with current car positions
   sortedCars.forEach(car => {
     const lane = parseInt(car.style.left);
     laneTracker[lane].push(car);
   });
   
-  // Process each car
+  //processes each car
   sortedCars.forEach(car => {
     let currentTop = parseInt(car.style.top) || 0;
     let currentLane = parseInt(car.style.left) || 0;
     
-    // Find cars in the same lane
+    //finds cars in the same lane
     const carsInSameLane = laneTracker[currentLane].filter(c => c !== car);
     
-    // Find the nearest car below this one in the same lane
+    //finds the nearest car below this one in the same lane
     const carsBelowInLane = carsInSameLane.filter(c => parseInt(c.style.top) > currentTop);
     let canMove = true;
     
     if (carsBelowInLane.length > 0) {
-      // Find the closest car below
+      //finds the closest car below
       const closestCarBelow = carsBelowInLane.reduce((closest, c) => {
         return parseInt(c.style.top) < parseInt(closest.style.top) ? c : closest;
       }, carsBelowInLane[0]);
       
-      // Check if moving would cause overlap
+      //checks if moving would cause overlap
       const distanceToCarBelow = parseInt(closestCarBelow.style.top) - currentTop;
       if (distanceToCarBelow < SAFE_GAP) {
         canMove = false;
       }
     }
     
-    // Move car if safe
+    //move car if safe
     if (canMove) {
       currentTop += 2; // Speed of enemy cars
       car.style.top = currentTop + 'px';
     }
     
-    // Respawn logic
+    //respawn logic
     if (currentTop > roadHeight) {
       const laneIndex = Math.floor(Math.random() * lanePositions.length);
       const newLane = lanePositions[laneIndex];
       
-      // Find safe position in the chosen lane
+      //find safe position in the chosen lane
       let newTop = -CAR_HEIGHT;
       
-      // Find the highest car in the target lane
+      //find the highest car in the target lane
       if (laneTracker[newLane].length > 0) {
         const highestCarTop = Math.min(...laneTracker[newLane]
           .map(c => parseInt(c.style.top)));
         
-        // If highest car is too close to the top, position this car higher
+        //if highest car is too close to the top, position this car higher
         if (highestCarTop < SAFE_GAP) {
           newTop = highestCarTop - SAFE_GAP - Math.floor(Math.random() * 100);
         }
       }
       
-      // Update position and image
+      //updates position and image
       car.style.top = newTop + 'px';
       car.style.left = newLane + 'px';
       car.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
       
-      // Update lane tracker
+      //updates lane tracker
       const oldLaneIndex = laneTracker[currentLane].indexOf(car);
       if (oldLaneIndex !== -1) {
         laneTracker[currentLane].splice(oldLaneIndex, 1);
