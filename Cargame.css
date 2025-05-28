@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+
 body {
   margin: 0;
   background: #fff;
@@ -55,15 +57,18 @@ body {
   border-radius: 10px;
   z-index: 100;
   width: 300px;
+  font-family: 'Audiowide', sans-serif;
 }
 
 #gameOverScreen h2 {
   font-size: 28px;
   margin-bottom: 10px;
+  font-family: 'Audiowide', sans-serif;
 }
 
 #gameOverScreen p {
   margin-bottom: 20px;
+  font-family: 'Audiowide', sans-serif;
 }
 
 #gameOverScreen button {
@@ -73,6 +78,7 @@ body {
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
+  font-family: 'Audiowide', sans-serif;
 }
 
 #tryAgainBtn {

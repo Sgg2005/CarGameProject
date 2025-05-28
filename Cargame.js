@@ -11,8 +11,11 @@ const maxLeft = roadWidth - carWidth + overlap;
 
 playerCar.style.left = carLeft + "px";
 
-//ensures the car stays within the road boundaries
+// UPDATED: Check game state before allowing car movement
 document.addEventListener('keydown', (e) => {
+  // Only allow movement if game is active
+  if (!gameActive) return;
+  
   if (e.key === 'ArrowLeft') {
     carLeft = Math.max(minLeft, carLeft - carStep);
   } else if (e.key === 'ArrowRight') {
@@ -154,7 +157,7 @@ function moveEnemies() {
     
     //move car if safe
     if (canMove) {
-      currentTop += 8; // Speed of enemy cars
+      currentTop += 10; // Speed of enemy cars
       car.style.top = currentTop + 'px';
     }
     
@@ -307,54 +310,66 @@ function exitGame() {
   }
 }
 
-// Add event listeners to buttons
+//event listeners in buttons
 tryAgainBtn.addEventListener('click', restartGame);
 exitGameBtn.addEventListener('click', exitGame);
 
-// Start the game
+//start the game
 moveEnemies();
 
-// --- Random car spawning ---
+// Enemy car spawning system with state tracking
+let carState = { leftLane: [], rightLane: [] };
+
 function spawnNewCar() {
   if (!gameActive) return;
-  
-  // Choose a lane
-  const laneIndex = Math.floor(Math.random() * lanePositions.length);
-  const lane = lanePositions[laneIndex];
-  
-  // Create a new car element
+
+  // Analyze current lane states
+  const leftLaneEmpty = laneTracker[lanePositions[0]].length === 0;
+  const rightLaneEmpty = laneTracker[lanePositions[1]].length === 0;
+
+  // Choose lane based on current state
+  let chosenLane;
+  if (leftLaneEmpty && rightLaneEmpty) {
+    chosenLane = Math.random() < 0.5 ? lanePositions[0] : lanePositions[1];
+  } else if (leftLaneEmpty) {
+    chosenLane = lanePositions[0];
+  } else if (rightLaneEmpty) {
+    chosenLane = lanePositions[1];
+  } else {
+    // If both lanes have cars, choose random
+    chosenLane = Math.random() < 0.5 ? lanePositions[0] : lanePositions[1];
+  }
+
+  // Create and setup new car
   const newCar = document.createElement('img');
   newCar.className = 'enemyCar';
   newCar.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
   newCar.style.position = 'absolute';
+  newCar.style.left = chosenLane + 'px';
+  newCar.style.top = (-CAR_HEIGHT) + 'px';
   newCar.style.width = carWidth + 'px';
   newCar.style.height = CAR_HEIGHT + 'px';
-  newCar.style.left = lane + 'px';
-  
-  // Position at top with proper spacing
-  let newTop = -CAR_HEIGHT;
-  
-  // Check if there are cars in this lane
-  if (laneTracker[lane].length > 0) {
-    const highestCarTop = Math.min(...laneTracker[lane].map(c => parseInt(c.style.top)));
-    if (highestCarTop < SAFE_GAP) {
-      newTop = highestCarTop - SAFE_GAP - Math.floor(Math.random() * 100);
-    }
-  }
-  
-  newCar.style.top = newTop + 'px';
-  
-  // Add to the DOM and to our tracked cars
+
+  // Add to game area
   gameArea.appendChild(newCar);
   enemyCars.push(newCar);
-  
-  console.log("New car spawned in lane:", lane);
+  laneTracker[chosenLane].push(newCar);
 }
 
-// Spawn cars at intervals
+// Spawn cars periodically
 setInterval(() => {
-  if (gameActive && enemyCars.length < 8) { // Limit total cars
+  if (gameActive && enemyCars.length < 6) { // Limit total cars
     spawnNewCar();
   }
-}, 3000 + Math.floor(Math.random() * 2000)); // Every 3-5 seconds
+}, 3000); // Adjust timing as needed
 
+// Update enemy cleanup in moveEnemies
+function removeEnemy(car) {
+  const lane = parseInt(car.style.left);
+  const index = laneTracker[lane].indexOf(car);
+  if (index !== -1) {
+    laneTracker[lane].splice(index, 1);
+  }
+  car.remove();
+  enemyCars = enemyCars.filter(c => c !== car);
+}
