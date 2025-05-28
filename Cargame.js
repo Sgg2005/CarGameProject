@@ -185,4 +185,3 @@ function moveEnemies() {
 }
 
 moveEnemies();
-
