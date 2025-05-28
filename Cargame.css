@@ -25,11 +25,10 @@ body {
 }
 
 .enemyCar {
-  position: absolute;
-  width: 100px;
-  height: auto;
-  z-index: 5;
-  top: 0px;
+  position: absolute !important;
+  width: 100px !important;
+  height: auto !important;
+  /* Make sure there's no 'left' property here that could override */
 }
 
 .road-line {

@@ -11,16 +11,6 @@ const maxLeft = roadWidth - carWidth + overlap;
 
 playerCar.style.left = carLeft + "px";
 
-// Fix all car images immediately
-function fixCarImages() {
-  document.querySelectorAll('.enemyCar, #playerCar').forEach(car => {
-    car.style.width = carWidth + 'px'; 
-    car.style.removeProperty('height'); // IMPORTANT: Remove height styling completely
-  });
-}
-
-fixCarImages(); // Run immediately
-
 //ensures the car stays within the road boundaries
 document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft') {
@@ -50,7 +40,7 @@ function resetLineOffsets() {
 
 function animateRoadLines() {
   for (let i = 0; i < roadLines.length; i++) {
-    lineOffsets[i] += 5; //road speed
+    lineOffsets[i] += 2; //road speed
     if (lineOffsets[i] > roadHeight) {
       lineOffsets[i] = lineOffsets[i] - roadHeight - 80; //80 = road line height
     }
@@ -78,8 +68,8 @@ const enemyCarImages = [
 ];
 
 //changed the car height-based spacing to account for actual image size
-const CAR_HEIGHT = 150;  // CHANGED: More reasonable height for calculations (but not for styling!)
-const SAFE_GAP = CAR_HEIGHT + 50;  // Adjusted for new height
+const CAR_HEIGHT = 350;  // Your car height (you said 350)
+const SAFE_GAP = CAR_HEIGHT + 100;  // Increased for extra safety
 
 //tracks cars by lane for better collision detection
 const laneTracker = {
@@ -98,9 +88,6 @@ enemyCars.forEach((car, idx) => {
   const laneIndex = Math.floor(Math.random() * lanePositions.length);
   const lane = lanePositions[laneIndex];
   car.style.left = lane + 'px';
-  
-  // FIXED: Remove height styling
-  car.style.removeProperty('height');
   
   //start positioning - ensure each car is spaced properly
   let newTop;
@@ -167,7 +154,7 @@ function moveEnemies() {
     
     //move car if safe
     if (canMove) {
-      currentTop += 5; // Speed of enemy cars
+      currentTop += 2; // Speed of enemy cars
       car.style.top = currentTop + 'px';
     }
     
@@ -195,9 +182,6 @@ function moveEnemies() {
       car.style.left = newLane + 'px';
       car.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
       
-      // FIXED: Ensure no height styling
-      car.style.removeProperty('height');
-      
       //updates lane tracker
       const oldLaneIndex = laneTracker[currentLane].indexOf(car);
       if (oldLaneIndex !== -1) {
@@ -220,18 +204,25 @@ function moveEnemies() {
 function checkCarCollision(enemyCar) {
   if (!gameActive) return;
   
-  // Get positions using getBoundingClientRect for accurate dimensions
-  const playerRect = playerCar.getBoundingClientRect();
-  const enemyRect = enemyCar.getBoundingClientRect();
+  // Get positions
+  const playerTop = playerCar.offsetTop;
+  const playerBottom = playerTop + playerCar.offsetHeight;
+  const playerLeft = parseInt(playerCar.style.left);
+  const playerRight = playerLeft + playerCar.offsetWidth;
   
-  // Add a small buffer to make collision less strict (30px smaller on each side)
+  const enemyTop = parseInt(enemyCar.style.top);
+  const enemyBottom = enemyTop + enemyCar.offsetHeight;
+  const enemyLeft = parseInt(enemyCar.style.left);
+  const enemyRight = enemyLeft + enemyCar.offsetWidth;
+  
+  // Add a small buffer to make collision less strict (10px smaller on each side)
   const buffer = 30;
   
   // Check collision - if rectangles overlap
-  if (playerRect.left + buffer < enemyRect.right - buffer &&
-      playerRect.right - buffer > enemyRect.left + buffer &&
-      playerRect.top + buffer < enemyRect.bottom - buffer &&
-      playerRect.bottom - buffer > enemyRect.top + buffer) {
+  if (playerLeft + buffer < enemyRight - buffer &&
+      playerRight - buffer > enemyLeft + buffer &&
+      playerTop + buffer < enemyBottom - buffer &&
+      playerBottom - buffer > enemyTop + buffer) {
     
     console.log("COLLISION DETECTED!");
     gameOver();
@@ -274,9 +265,6 @@ function restartGame() {
     
     // Update image
     car.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
-    
-    // FIXED: Ensure no height styling
-    car.style.removeProperty('height');
   });
   
   // Reset lane trackers
@@ -356,7 +344,7 @@ exitGameBtn.addEventListener('click', exitGame);
 // Start the game
 moveEnemies();
 
-// --- Random car spawning - FIXED VERSION ---
+// --- Random car spawning ---
 function spawnNewCar() {
   if (!gameActive) return;
   
@@ -370,7 +358,7 @@ function spawnNewCar() {
   newCar.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
   newCar.style.position = 'absolute';
   newCar.style.width = carWidth + 'px';
-  // FIXED: Do NOT set height - let it maintain aspect ratio naturally
+  newCar.style.height = CAR_HEIGHT + 'px';
   newCar.style.left = lane + 'px';
   
   // Position at top with proper spacing
@@ -399,17 +387,4 @@ setInterval(() => {
     spawnNewCar();
   }
 }, 3000 + Math.floor(Math.random() * 2000)); // Every 3-5 seconds
-
-// Add this to your CSS file or add a style tag to your HTML:
-const styleTag = document.createElement('style');
-styleTag.textContent = `
-  .enemyCar, #playerCar {
-    width: 100px;
-    height: auto !important;
-  }
-`;
-document.head.appendChild(styleTag);
-
-// Run the fix again after a short delay to make sure it sticks
-setTimeout(fixCarImages, 500);
 
