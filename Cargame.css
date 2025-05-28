@@ -42,3 +42,46 @@ body {
   opacity: 0.85;
   border-radius: 4px;
 }
+
+/* Game Over Screen Styles */
+#gameOverScreen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  z-index: 100;
+  width: 300px;
+}
+
+#gameOverScreen h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+#gameOverScreen p {
+  margin-bottom: 20px;
+}
+
+#gameOverScreen button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#tryAgainBtn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+#exitGameBtn {
+  background-color: #f44336;
+  color: white;
+}
