@@ -40,7 +40,7 @@ function resetLineOffsets() {
 
 function animateRoadLines() {
   for (let i = 0; i < roadLines.length; i++) {
-    lineOffsets[i] += 2; //road speed
+    lineOffsets[i] += 8; //road speed
     if (lineOffsets[i] > roadHeight) {
       lineOffsets[i] = lineOffsets[i] - roadHeight - 80; //80 = road line height
     }
