@@ -40,7 +40,7 @@ function resetLineOffsets() {
 
 function animateRoadLines() {
   for (let i = 0; i < roadLines.length; i++) {
-    lineOffsets[i] += 2; //road speed
+    lineOffsets[i] += 8; //road speed
     if (lineOffsets[i] > roadHeight) {
       lineOffsets[i] = lineOffsets[i] - roadHeight - 80; //80 = road line height
     }
@@ -154,7 +154,7 @@ function moveEnemies() {
     
     //move car if safe
     if (canMove) {
-      currentTop += 2; // Speed of enemy cars
+      currentTop += 8; // Speed of enemy cars
       car.style.top = currentTop + 'px';
     }
     
@@ -282,58 +282,28 @@ function restartGame() {
   moveEnemies(); // Restart the game loop
 }
 
-// Updated Exit game function to properly close window
+// Most direct exit function possible - focus only on closing
 function exitGame() {
-  // Try multiple approaches to close the window
+  // Try every possible method to close the tab immediately
   try {
-    // Primary method
+    // Method 1: Direct window.close()
     window.close();
     
-    // If that didn't work, try alternative methods
-    setTimeout(() => {
-      // If we're still here, window.close() didn't work
-      
-      // Try to close if opened by another window
-      if (window.opener) {
-        window.close();
-      }
-      
-      // If still here, try more aggressive approach
-      if (window.top !== window.self) {
-        // If in iframe
-        window.parent.postMessage('closeGame', '*');
-      }
-      
-      // Last resort - full screen overlay
-      const exitOverlay = document.createElement('div');
-      exitOverlay.style.position = 'fixed';
-      exitOverlay.style.top = '0';
-      exitOverlay.style.left = '0';
-      exitOverlay.style.width = '100%';
-      exitOverlay.style.height = '100%';
-      exitOverlay.style.backgroundColor = 'black';
-      exitOverlay.style.color = 'white';
-      exitOverlay.style.fontSize = '24px';
-      exitOverlay.style.textAlign = 'center';
-      exitOverlay.style.paddingTop = '40vh';
-      exitOverlay.style.zIndex = '99999';
-      exitOverlay.innerHTML = 'Game Exited.<br><br>Please close this browser tab.';
-      document.body.appendChild(exitOverlay);
-      
-      // Hide all other content
-      document.querySelectorAll('body > *:not(:last-child)').forEach(el => {
-        el.style.display = 'none';
-      });
-      
-      // Also try to redirect to about:blank as another option
-      setTimeout(() => {
-        window.location.href = 'about:blank';
-      }, 1000);
-      
-    }, 100);
-  } catch (e) {
-    console.error("Error while trying to exit:", e);
-    alert("Please close this window manually.");
+    // Method 2: If in a popup window
+    if (window.opener) {
+      window.close();
+    }
+    
+    // Method 3: If in an iframe
+    if (window !== window.top) {
+      window.parent.close();
+    }
+    
+    // Method 4: Force navigation to close protocol (works in some environments)
+    location.href = "about:blank";
+  } catch(e) {
+    // Last attempt if all others fail
+    window.open('', '_self').close();
   }
 }
 
