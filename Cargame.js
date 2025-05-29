@@ -43,7 +43,7 @@ function resetLineOffsets() {
 
 function animateRoadLines() {
   for (let i = 0; i < roadLines.length; i++) {
-    lineOffsets[i] += 3; //road speed
+    lineOffsets[i] += 5; //road speed
     if (lineOffsets[i] > roadHeight) {
       lineOffsets[i] = lineOffsets[i] - roadHeight - 80; //80 = road line height
     }
@@ -157,7 +157,7 @@ function moveEnemies() {
     
     //move car if safe
     if (canMove) {
-      currentTop += 3; //speed of enemy cars
+      currentTop += 5; //speed of enemy cars
       car.style.top = currentTop + 'px';
     }
     
@@ -313,47 +313,10 @@ function exitGame() {
   }
 }
 
-//event listeners in buttons
+// Add event listeners to buttons
+tryAgainBtn.addEventListener('click', restartGame);
+exitGameBtn.addEventListener('click', exitGame);
+
 //start the game
 moveEnemies();
 
-// Start spawning cars periodically
-const spawnInterval = setInterval(() => {
-  if (gameActive) spawnRandomCar();
-}, 2000);
-
-// Random car spawn function
-moveEnemies();
-
-// Random car spawn function
-function spawnRandomCar() {
-  if (!gameActive) return;
-
-  // Only spawn if probability check passes (10% chance)
-  if (Math.random() > 0.1) return;
-
-  // Find emptiest lane
-  const leftCount = laneTracker[lanePositions[0]].length;
-  const rightCount = laneTracker[lanePositions[1]].length;
-  
-  // Only spawn if lane difference is significant
-  if (Math.abs(leftCount - rightCount) < 2) return;
-  
-  // Target the emptier lane
-  const targetLane = leftCount < rightCount ? lanePositions[0] : lanePositions[1];
-  
-  // Create and configure new car
-  const newCar = document.createElement('img');
-  newCar.className = 'enemyCar';
-  newCar.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
-  newCar.style.left = targetLane + 'px';
-  newCar.style.top = (-CAR_HEIGHT) + 'px';
-  
-  // Add to game
-  gameArea.appendChild(newCar);
-  enemyCars.push(newCar);
-  laneTracker[targetLane].push(newCar);
-}
-
-// Call spawnRandomCar periodically
-setInterval(spawnRandomCar, 2000);
