@@ -4,7 +4,7 @@ const roadWidth = 400;
 const carWidth = 100;
 let carLeft = (roadWidth - carWidth) / 2;
 const carStep = 25;
-const overlap = 10; //how much the player can go past the edge
+const overlap = 10;
 
 const minLeft = -overlap;
 const maxLeft = roadWidth - carWidth + overlap;
@@ -15,6 +15,9 @@ playerCar.style.left = carLeft + "px";
 let gameActive = true;
 let score = 0;
 let scoreInterval = null;
+
+// Difficulty/speed variables
+let gameSpeed = 9; // Initial speed for both road and cars
 
 // --- Road lines animation ---
 const roadLines = document.querySelectorAll('.road-line');
@@ -34,11 +37,11 @@ function resetLineOffsets() {
 }
 
 function animateRoadLines() {
-  if (!gameActive) return; // freeze road lines on crash
+  if (!gameActive) return;
   for (let i = 0; i < roadLines.length; i++) {
-    lineOffsets[i] += 7; //road speed
+    lineOffsets[i] += gameSpeed; // use variable speed
     if (lineOffsets[i] > roadHeight) {
-      lineOffsets[i] = lineOffsets[i] - roadHeight - 80; //80 = road line height
+      lineOffsets[i] = lineOffsets[i] - roadHeight - 80;
     }
     roadLines[i].style.top = lineOffsets[i] + 'px';
   }
@@ -47,10 +50,12 @@ function animateRoadLines() {
 
 // --- Enemy cars movement ---
 const lanePositions = [
-  0,                    // Left lane
-  roadWidth - carWidth  // Right lane
+  0,
+  roadWidth - carWidth
 ];
 
+// Dynamically create enemy cars if not present
+const ENEMY_CAR_COUNT = 3;
 let enemyCars = Array.from(document.querySelectorAll('.enemyCar'));
 const enemyCarImages = [
   "CarImage2.png",
@@ -58,8 +63,21 @@ const enemyCarImages = [
   "CarImage4.png"
 ];
 
-const CAR_HEIGHT = 350;  // Your car height (you said 350)
-const SAFE_GAP = CAR_HEIGHT + 100;  // Increased for extra safety
+if (enemyCars.length === 0) {
+  for (let i = 0; i < ENEMY_CAR_COUNT; i++) {
+    const car = document.createElement('img');
+    car.className = 'enemyCar';
+    car.style.position = 'absolute';
+    car.style.width = carWidth + 'px';
+    car.style.height = CAR_HEIGHT + 'px';
+    car.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
+    gameArea.appendChild(car);
+  }
+  enemyCars = Array.from(document.querySelectorAll('.enemyCar'));
+}
+
+const CAR_HEIGHT = 350;
+const SAFE_GAP = CAR_HEIGHT + 100;
 
 const laneTracker = {
   [lanePositions[0]]: [],
@@ -76,7 +94,6 @@ enemyCars.forEach((car, idx) => {
   const lane = lanePositions[laneIndex];
   car.style.left = lane + 'px';
 
-  //start positioning - ensure each car is spaced properly
   let newTop;
   if (laneTracker[lane].length === 0) {
     newTop = -CAR_HEIGHT - Math.floor(Math.random() * 200);
@@ -128,7 +145,7 @@ function moveEnemies() {
     }
 
     if (canMove) {
-      currentTop += 7;
+      currentTop += gameSpeed; // use variable speed
       car.style.top = currentTop + 'px';
     }
 
@@ -181,7 +198,6 @@ document.addEventListener('keydown', (e) => {
 function checkCarCollision(enemyCar) {
   if (!gameActive) return;
 
-  // Get positions
   const playerTop = playerCar.offsetTop;
   const playerBottom = playerTop + playerCar.offsetHeight;
   const playerLeft = parseInt(playerCar.style.left);
@@ -192,8 +208,6 @@ function checkCarCollision(enemyCar) {
   const enemyLeft = parseInt(enemyCar.style.left);
   const enemyRight = enemyLeft + enemyCar.offsetWidth;
 
-  // *** REMOVE THE BUFFER FOR INSTANT GAME OVER ON EVEN THE SLIGHTEST TOUCH ***
-  // Check collision - if rectangles overlap in any way (no buffer)
   if (playerLeft < enemyRight &&
       playerRight > enemyLeft &&
       playerTop < enemyBottom &&
@@ -210,14 +224,8 @@ function updateScoreDisplay() {
 // --- Game Over ---
 function gameOver() {
   gameActive = false;
-
-  // Stop the score
   clearInterval(scoreInterval);
-
-  // Visual feedback for collision
   playerCar.style.filter = "brightness(150%) saturate(200%)";
-
-  // Show game over screen and final score
   gameOverScreen.style.display = 'block';
   document.getElementById('finalScore').textContent = score;
 }
@@ -226,6 +234,7 @@ function gameOver() {
 function startGame() {
   gameActive = true;
   score = 0;
+  gameSpeed = 7; // reset speed each game
   updateScoreDisplay();
 
   playerCar.style.filter = "none";
@@ -238,9 +247,7 @@ function startGame() {
     const laneIndex = Math.floor(Math.random() * lanePositions.length);
     const lane = lanePositions[laneIndex];
     car.style.left = lane + 'px';
-
     car.style.top = (-CAR_HEIGHT - idx * SAFE_GAP) + 'px';
-
     car.src = enemyCarImages[Math.floor(Math.random() * enemyCarImages.length)];
   });
 
@@ -260,6 +267,10 @@ function startGame() {
   scoreInterval = setInterval(function() {
     score++;
     updateScoreDisplay();
+    // Increase speed every 50 points
+    if (score % 50 === 0) {
+      gameSpeed += 2; // or adjust increment for desired challenge
+    }
   }, 100);
 }
 
@@ -282,4 +293,3 @@ exitGameBtn.addEventListener('click', exitGame);
 window.onload = function() {
   startGame();
 };
-
