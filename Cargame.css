@@ -2,7 +2,7 @@
 
 body {
   margin: 0;
-  background: #fff;
+  background: #343434;
   overflow: hidden;
 }
 
@@ -89,4 +89,19 @@ body {
 #exitGameBtn {
   background-color: #f44336;
   color: white;
+}
+
+.score {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 24px;
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  padding: 8px 18px;
+  border-radius: 8px;
+  z-index: 50;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  pointer-events: none;
 }

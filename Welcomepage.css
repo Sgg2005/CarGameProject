@@ -1,9 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+
 body {
-  background: white;
-  color: black;
-  font-family: Arial, sans-serif;
+  background: #343434;
+  color: white;
   text-align: center;
   padding-top: 150px;
+  font-family: 'Audiowide', Arial, sans-serif;
+}
+
+h1 {
+  font-family: 'Audiowide', Arial, sans-serif;
 }
 
 button {
@@ -16,6 +22,7 @@ button {
   cursor: pointer;
   margin-top: 30px;
   transition: 0.3s;
+  font-family: 'Audiowide', Arial, sans-serif;
 }
 
 button:hover {
