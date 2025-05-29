@@ -319,4 +319,3 @@ exitGameBtn.addEventListener('click', exitGame);
 
 //start the game
 moveEnemies();
-
