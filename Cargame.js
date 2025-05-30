@@ -114,9 +114,11 @@ enemyCars.forEach((car, idx) => {
 function moveEnemies() {
   if (!gameActive) return;
 
+  //resets lane tracker for each frame
   laneTracker[lanePositions[0]] = [];
   laneTracker[lanePositions[1]] = [];
 
+  //sorts enemy cars by their top position
   const sortedCars = Array.from(enemyCars).sort((a, b) => {
     return parseInt(a.style.top) - parseInt(b.style.top);
   });
