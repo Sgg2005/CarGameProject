@@ -16,8 +16,24 @@ let gameActive = true;
 let score = 0;
 let scoreInterval = null;
 
-// Difficulty/speed variables
-let gameSpeed = 9; // Initial speed for both road and cars
+// --- DIFFICULTY LOGIC UPDATED AS PER REQUIREMENTS ---
+const difficulty = localStorage.getItem('carGameLevel');
+let gameSpeed, speedIncrement;
+if (difficulty === 'easy') {
+  gameSpeed = 10;
+  speedIncrement = 8;
+} else if (difficulty === 'medium') {
+  gameSpeed = 11;
+  speedIncrement = 8;
+} else if (difficulty === 'hard') {
+  gameSpeed = 12;
+  speedIncrement = 8;
+} else {
+  gameSpeed = 5;
+  speedIncrement = 8;
+}
+// Track last score milestone
+let lastSpeedIncreaseScore = 0;
 
 // --- Road lines animation ---
 const roadLines = document.querySelectorAll('.road-line');
@@ -63,6 +79,9 @@ const enemyCarImages = [
   "CarImage4.png"
 ];
 
+const CAR_HEIGHT = 350;
+const SAFE_GAP = CAR_HEIGHT + 100;
+
 if (enemyCars.length === 0) {
   for (let i = 0; i < ENEMY_CAR_COUNT; i++) {
     const car = document.createElement('img');
@@ -75,9 +94,6 @@ if (enemyCars.length === 0) {
   }
   enemyCars = Array.from(document.querySelectorAll('.enemyCar'));
 }
-
-const CAR_HEIGHT = 350;
-const SAFE_GAP = CAR_HEIGHT + 100;
 
 const laneTracker = {
   [lanePositions[0]]: [],
@@ -236,7 +252,23 @@ function gameOver() {
 function startGame() {
   gameActive = true;
   score = 0;
-  gameSpeed = 7; // reset speed each game
+
+  // --- DIFFICULTY LOGIC UPDATED AS PER REQUIREMENTS ---
+  if (difficulty === 'easy') {
+    gameSpeed = 5;
+    speedIncrement = 4;
+  } else if (difficulty === 'medium') {
+    gameSpeed = 6;
+    speedIncrement = 4;
+  } else if (difficulty === 'hard') {
+    gameSpeed = 7;
+    speedIncrement = 4;
+  } else {
+    gameSpeed = 5;
+    speedIncrement = 4;
+  }
+  lastSpeedIncreaseScore = 0;
+
   updateScoreDisplay();
 
   playerCar.style.filter = "none";
@@ -269,9 +301,10 @@ function startGame() {
   scoreInterval = setInterval(function() {
     score++;
     updateScoreDisplay();
-    // Increase speed every 50 points
-    if (score % 50 === 0) {
-      gameSpeed += 2; // or adjust increment for desired challenge
+    // --- DIFFICULTY LOGIC: Increase speed every 50 points, only once per milestone ---
+    if (score > 0 && score % 50 === 0 && score !== lastSpeedIncreaseScore) {
+      gameSpeed += speedIncrement;
+      lastSpeedIncreaseScore = score;
     }
   }, 100);
 }

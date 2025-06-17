@@ -8,10 +8,17 @@
 </head>
 <body>
   <h1>Hello! Welcome to the Car Game</h1>
-  <button onclick="startGame()">Start Game</button>
+  <h2>Select a level to start</h2>
+  <div class="level-buttons">
+    <button class="level-btn easy-btn" onclick="startGame('easy')">Easy</button>
+    <button class="level-btn medium-btn" onclick="startGame('medium')">Medium</button>
+    <button class="level-btn hard-btn" onclick="startGame('hard')">Hard</button>
+  </div>
 
 <script>
-  function startGame() {
+  function startGame(level) {
+    // Store selected level in localStorage and open game
+    localStorage.setItem('carGameLevel', level);
     window.open("Cargame.html", "_blank");
     window.close();
   }
